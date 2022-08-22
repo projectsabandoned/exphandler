@@ -1,22 +1,49 @@
 package main
 
 import (
-	"fmt"
-	"io"
+	"context"
+	"log"
 	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
+
+	"github.com/g14com0/go-app/pkg/handler"
 )
 
 func main() {
-	http.HandleFunc("/", func(rw http.ResponseWriter, r *http.Request) {
-		data, err := io.ReadAll(r.Body)
+	l := log.New(os.Stdout, "", log.LstdFlags)
 
-		fmt.Fprintf(rw, "%s", data)
+	nh := handler.NewHi(l)
+	nb := handler.NewBye(l)
 
+	sm := http.NewServeMux()
+	sm.Handle("/", nh)
+	sm.Handle("/bye", nb)
+
+	s := &http.Server{
+		Addr:         ":9090",
+		Handler:      sm,
+		IdleTimeout:  120 * time.Second,
+		ReadTimeout:  1 * time.Second,
+		WriteTimeout: 1 * time.Second,
+	}
+
+	go func() {
+		err := s.ListenAndServe()
 		if err != nil {
-			http.Error(rw, "Error: ", http.StatusBadRequest)
-			return
+			log.Fatal(err)
 		}
-	})
+	}()
 
-	http.ListenAndServe(":9090", nil)
+	sigChan := make(chan os.Signal, 100)
+	signal.Notify(sigChan, os.Interrupt, syscall.SIGTERM)
+
+	sig := <-sigChan
+	l.Println("Graceful shutdown", sig)
+
+	tc, cf := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cf()
+	s.Shutdown(tc)
 }
