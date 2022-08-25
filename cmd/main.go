@@ -15,12 +15,10 @@ import (
 func main() {
 	l := log.New(os.Stdout, "", log.LstdFlags)
 
-	nh := handler.NewHi(l)
-	nb := handler.NewBye(l)
+	eh := handler.NewExpense(l)
 
 	sm := http.NewServeMux()
-	sm.Handle("/", nh)
-	sm.Handle("/bye", nb)
+	sm.Handle("/expense", eh)
 
 	s := &http.Server{
 		Addr:         ":9090",
