@@ -18,7 +18,7 @@ func main() {
 	eh := handler.NewExpense(l)
 
 	sm := http.NewServeMux()
-	sm.Handle("/expense", eh)
+	sm.Handle("/", eh)
 
 	s := &http.Server{
 		Addr:         ":9090",
