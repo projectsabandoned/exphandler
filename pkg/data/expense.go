@@ -5,14 +5,16 @@ import (
 	"fmt"
 	"io"
 	"time"
+
+	"github.com/go-playground/validator"
 )
 
 type Expense struct {
 	ID          int     `json:"id"`
-	Portfolio   string  `json:"portfolio"`
-	Category    string  `json:"category"`
+	Portfolio   string  `json:"portfolio" validate:"required"`
+	Category    string  `json:"category" validate:"required"`
 	SubCategory string  `json:"subcategory"`
-	Import      float32 `json:"import"`
+	Import      float32 `json:"import" validate:"required"`
 	CreatedOn   string  `json:"-"`
 	UpdatedOn   string  `json:"-"`
 	DeletedOn   string  `json:"-"`
@@ -21,6 +23,11 @@ type Expense struct {
 func (e *Expense) FromJSON(r io.Reader) error {
 	decoder := json.NewDecoder(r)
 	return decoder.Decode(e)
+}
+
+func (e *Expense) Validate() error {
+	validate := validator.New()
+	return validate.Struct(e)
 }
 
 type Expenses []*Expense

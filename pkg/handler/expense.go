@@ -72,6 +72,13 @@ func (e *Expense) MiddlewareExpenseValidation(next http.Handler) http.Handler {
 			return
 		}
 
+		err = expense.Validate()
+
+		if err != nil {
+			http.Error(rw, "error", http.StatusBadRequest)
+			return
+		}
+
 		ctx := context.WithValue(r.Context(), KeyExpense{}, expense)
 		req := r.WithContext(ctx)
 
