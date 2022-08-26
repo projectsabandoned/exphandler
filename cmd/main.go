@@ -19,14 +19,14 @@ func main() {
 	sm := mux.NewRouter()
 
 	getRouter := sm.Methods(http.MethodGet).Subrouter()
-	getRouter.HandleFunc("/", eh.GetExpenses)
+	getRouter.HandleFunc("/expense", eh.GetExpenses)
 
 	putRouter := sm.Methods(http.MethodPut).Subrouter()
-	putRouter.HandleFunc("/{id:[0-9]+}", eh.UpdateExpense)
+	putRouter.HandleFunc("/expense/{id:[0-9]+}", eh.UpdateExpense)
 	putRouter.Use(eh.MiddlewareExpenseValidation)
 
 	postRouter := sm.Methods(http.MethodPost).Subrouter()
-	postRouter.HandleFunc("/", eh.AddExpense)
+	postRouter.HandleFunc("/expense", eh.AddExpense)
 	postRouter.Use(eh.MiddlewareExpenseValidation)
 
 	s := &http.Server{
