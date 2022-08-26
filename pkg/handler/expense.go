@@ -1,13 +1,13 @@
 package handler
 
 import (
-	"fmt"
+	"context"
 	"log"
 	"net/http"
-	"regexp"
 	"strconv"
 
 	"github.com/g14com0/go-app/pkg/data"
+	"github.com/gorilla/mux"
 )
 
 type Expense struct {
@@ -18,44 +18,7 @@ func NewExpense(l *log.Logger) *Expense {
 	return &Expense{l}
 }
 
-func (e *Expense) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
-	if r.Method == http.MethodGet {
-		e.getExpenses(rw, r)
-		return
-	}
-
-	if r.Method == http.MethodPost {
-		e.addExpense(rw, r)
-		return
-	}
-
-	if r.Method == http.MethodPut {
-		reg := regexp.MustCompile(`/([0-9]+)`)
-		g := reg.FindAllStringSubmatch(r.URL.Path, -1)
-
-		if len(g) != 1 {
-			http.Error(rw, "error", http.StatusBadRequest)
-			return
-		}
-
-		if len(g[0]) != 2 {
-			http.Error(rw, "error", http.StatusBadRequest)
-			return
-		}
-		idString := g[0][1]
-		id, err := strconv.Atoi(idString)
-
-		if err != nil {
-			http.Error(rw, "error", http.StatusBadRequest)
-		}
-		fmt.Println("got id: ", id)
-		e.updateExpense(id, rw, r)
-	}
-
-	rw.WriteHeader(http.StatusMethodNotAllowed)
-}
-
-func (e *Expense) getExpenses(rw http.ResponseWriter, r *http.Request) {
+func (e *Expense) GetExpenses(rw http.ResponseWriter, r *http.Request) {
 	e.l.Println("getexpenses")
 
 	le := data.GetExpense()
@@ -67,27 +30,25 @@ func (e *Expense) getExpenses(rw http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (e *Expense) addExpense(rw http.ResponseWriter, r *http.Request) {
+func (e *Expense) AddExpense(rw http.ResponseWriter, r *http.Request) {
 	e.l.Println("addExpense")
 
-	expense := &data.Expense{}
-	err := expense.FromJSON(r.Body)
-	if err != nil {
-		http.Error(rw, "error", http.StatusBadRequest)
-	}
+	expense := r.Context().Value(KeyExpense{}).(*data.Expense)
 	data.AddExpense(expense)
 }
 
-func (e *Expense) updateExpense(id int, rw http.ResponseWriter, r *http.Request) {
-	e.l.Println("updateExpense")
-
-	expense := &data.Expense{}
-	err := expense.FromJSON(r.Body)
+func (e *Expense) UpdateExpense(rw http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
 		http.Error(rw, "error", http.StatusBadRequest)
+		return
 	}
-	err = data.UpdateExpense(id, expense)
 
+	e.l.Println("updateExpense")
+	expense := r.Context().Value(KeyExpense{}).(*data.Expense)
+
+	err = data.UpdateExpense(id, expense)
 	if err == data.ErrExpenseNotFound {
 		http.Error(rw, "error", http.StatusNotFound)
 		return
@@ -97,4 +58,23 @@ func (e *Expense) updateExpense(id int, rw http.ResponseWriter, r *http.Request)
 		http.Error(rw, "error", http.StatusInternalServerError)
 		return
 	}
+}
+
+type KeyExpense struct{}
+
+func (e *Expense) MiddlewareExpenseValidation(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
+		expense := &data.Expense{}
+
+		err := expense.FromJSON(r.Body)
+		if err != nil {
+			http.Error(rw, "error", http.StatusBadRequest)
+			return
+		}
+
+		ctx := context.WithValue(r.Context(), KeyExpense{}, expense)
+		req := r.WithContext(ctx)
+
+		next.ServeHTTP(rw, req)
+	})
 }

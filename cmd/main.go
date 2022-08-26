@@ -10,15 +10,24 @@ import (
 	"time"
 
 	"github.com/g14com0/go-app/pkg/handler"
+	"github.com/gorilla/mux"
 )
 
 func main() {
 	l := log.New(os.Stdout, "", log.LstdFlags)
-
 	eh := handler.NewExpense(l)
+	sm := mux.NewRouter()
 
-	sm := http.NewServeMux()
-	sm.Handle("/", eh)
+	getRouter := sm.Methods(http.MethodGet).Subrouter()
+	getRouter.HandleFunc("/", eh.GetExpenses)
+
+	putRouter := sm.Methods(http.MethodPut).Subrouter()
+	putRouter.HandleFunc("/{id:[0-9]+}", eh.UpdateExpense)
+	putRouter.Use(eh.MiddlewareExpenseValidation)
+
+	postRouter := sm.Methods(http.MethodPost).Subrouter()
+	postRouter.HandleFunc("/", eh.AddExpense)
+	postRouter.Use(eh.MiddlewareExpenseValidation)
 
 	s := &http.Server{
 		Addr:         ":9090",
