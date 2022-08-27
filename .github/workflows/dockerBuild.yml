@@ -66,7 +66,7 @@ jobs:
 
 ###########################TRIVY SCAN#####################################
     - name: Run Trivy vulnerability scanner
-      uses: aquasecurity/trivy-action@7b7aa264d83dc58691451798b4d117d53d21edfe
+      uses: aquasecurity/trivy-action@d63413b0a4a4482237085319f7f4a1ce99a8f2ac
       with:
         image-ref: 'eu.gcr.io/${{ env.PROJECT }}/${{ env.TAG }}'
         format: 'template'
@@ -82,7 +82,7 @@ jobs:
 ###########################SYNK SCAN#####################################
     - name: Run Snyk to check Docker image for vulnerabilities
       continue-on-error: true
-      uses: snyk/actions/docker@14818c4695ecc4045f33c9cee9e795a788711ca4
+      uses: snyk/actions/docker@f17622b4d086f0789070d28f1f06253090ae8fa6
       env:
         SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
       with:
@@ -97,7 +97,7 @@ jobs:
 ###########################SYSDIG SCAN#####################################
     - name: Sysdig Secure Inline Scan
       id: scan
-      uses: sysdiglabs/scan-action@768d7626a14897e0948ea89c8437dd46a814b163
+      uses: sysdiglabs/scan-action@0e483c3a8ed88a6d7394a1baaf0e432db09f240f
       with:
         image-tag: eu.gcr.io/${{ env.PROJECT }}/${{ env.TAG }}
         sysdig-secure-token: ${{ secrets.SYSDIG_SECURE_TOKEN}}
