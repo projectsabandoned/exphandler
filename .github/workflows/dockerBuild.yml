@@ -27,7 +27,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       crName: "furlangiacomo"
-      repoName: "go-app"
+      repoName: "go-app-test"
 
     strategy:
       fail-fast: false
