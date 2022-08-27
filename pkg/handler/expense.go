@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/g14com0/go-app/pkg/data"
+	"github.com/g14com0/exphandler/pkg/data"
 	"github.com/gorilla/mux"
 )
 

@@ -1,4 +1,4 @@
-module github.com/g14com0/go-app
+module github.com/g14com0/exphandler
 
 go 1.19
 

@@ -9,7 +9,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/g14com0/go-app/pkg/handler"
+	"github.com/g14com0/exphandler/pkg/handler"
 	"github.com/gorilla/mux"
 )
 
