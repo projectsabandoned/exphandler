@@ -101,4 +101,13 @@ var expenseList = []*Expense{
 		CreatedOn:   time.Now().UTC().String(),
 		UpdatedOn:   time.Now().UTC().String(),
 	},
+	&Expense{
+		ID:          4,
+		Portfolio:   "Bank",
+		Category:    "Sport",
+		SubCategory: "Bet",
+		Import:      30,
+		CreatedOn:   time.Now().UTC().String(),
+		UpdatedOn:   time.Now().UTC().String(),
+	},
 }
