@@ -3,10 +3,16 @@ on:
   workflow_dispatch:
   push:
     branches: [ main ]
+    paths-ignore:
+     - ".github/**"
+     - "renovate.jsno"
   pull_request:
     branches: [ main ]
+    paths-ignore:
+     - ".github/**"
+     - "renovate.json"
   schedule:
-    - cron: '38 14 * * 0'
+    - cron: '0 0 * * *'
   
 permissions:
   contents: read
@@ -28,6 +34,10 @@ jobs:
         language: [ 'go' ]
 
     steps:
+    - name: test
+      if: ${{ github.event_name != 'schedule' }}
+      run: echo "test"
+
     - name: Checkout
       uses: actions/checkout@v3
 
@@ -38,6 +48,7 @@ jobs:
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v2
+      
 #    - name: Authenticate to Google Cloud
 #      uses: google-github-actions/auth@v0
 #      with:
@@ -64,7 +75,6 @@ jobs:
     - name: Build
       run: docker build . -t eu.gcr.io/${{ env.PROJECT }}/${{ env.TAG }}
 
-###########################TRIVY SCAN#####################################
     - name: Run Trivy vulnerability scanner
       uses: aquasecurity/trivy-action@d63413b0a4a4482237085319f7f4a1ce99a8f2ac
       with:
@@ -79,7 +89,6 @@ jobs:
       with:
         sarif_file: 'trivy-results.sarif'
 
-###########################SYNK SCAN#####################################
     - name: Run Snyk to check Docker image for vulnerabilities
       continue-on-error: true
       uses: snyk/actions/docker@f17622b4d086f0789070d28f1f06253090ae8fa6
@@ -94,7 +103,6 @@ jobs:
       with:
         sarif_file: snyk.sarif
 
-###########################SYSDIG SCAN#####################################
     - name: Sysdig Secure Inline Scan
       id: scan
       uses: sysdiglabs/scan-action@0e483c3a8ed88a6d7394a1baaf0e432db09f240f
@@ -111,3 +119,6 @@ jobs:
       if: always()
       with:
         sarif_file: ${{ steps.scan.outputs.sarifReport }}
+
+#    - name: Push
+#      run: docker push eu.gcr.io/${{ env.PROJECT }}/${{ env.TAG }}
