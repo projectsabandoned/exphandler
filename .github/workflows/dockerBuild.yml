@@ -17,6 +17,7 @@ jobs:
       contents: read
       security-events: write
       actions: read
+      checks: write
     runs-on: ubuntu-latest
     env:
       PROJECT: "gcfr-352018"
@@ -93,15 +94,20 @@ jobs:
       with:
         sarif_file: snyk.sarif
 
-#    - name: Scan
-#      uses: sysdiglabs/scan-action@v3.0.1
-#      with:
-#        image-tag: eu.gcr.io/${{ env.PROJECT }}/${{ env.TAG }}
-#        sysdig-secure-token: ${{ secrets.SYSDIG_SECURE_TOKEN }}
-#        sysdig-secure-url: https://eu1.app.sysdig.com/
-#        input-type: docker-daemon
-#        run-as-user: root
-#        input-path: /run/docker.sock
-        
-#    - name: Push
-#      run: docker push eu.gcr.io/${{ env.PROJECT }}/${{ env.TAG }}
+###########################SYSDIG SCAN#####################################
+    - name: Sysdig Secure Inline Scan
+      id: scan
+      uses: sysdiglabs/scan-action@768d7626a14897e0948ea89c8437dd46a814b163
+      with:
+        image-tag: eu.gcr.io/${{ env.PROJECT }}/${{ env.TAG }}
+        sysdig-secure-token: ${{ secrets.SYSDIG_SECURE_TOKEN}}
+        sysdig-secure-url: https://eu1.app.sysdig.com 
+        dockerfile-path: ./Dockerfile
+        input-type: docker-daemon
+        ignore-failed-scan: true
+        run-as-user: root
+
+    - uses: github/codeql-action/upload-sarif@v2
+      if: always()
+      with:
+        sarif_file: ${{ steps.scan.outputs.sarifReport }}
