@@ -5,7 +5,7 @@ on:
     branches: [ main ]
     paths-ignore:
      - ".github/**"
-     - "./renovate.jsno"
+     - "./renovate.json"
   pull_request:
     branches: [ main ]
     paths-ignore:
