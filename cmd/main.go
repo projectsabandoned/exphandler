@@ -18,14 +18,14 @@ func main() {
 	eh := handler.NewExpense(l)
 	sm := mux.NewRouter()
 
-	getRouter := sm.Methods(http.MethodGet).Subrouter()
+	getRouter := sm.PathPrefix("/api").Methods(http.MethodGet).Subrouter()
 	getRouter.HandleFunc("/expense", eh.GetExpenses)
 
-	putRouter := sm.Methods(http.MethodPut).Subrouter()
+	putRouter := sm.PathPrefix("/api").Methods(http.MethodPut).Subrouter()
 	putRouter.HandleFunc("/expense/{id:[0-9]+}", eh.UpdateExpense)
 	putRouter.Use(eh.MiddlewareExpenseValidation)
 
-	postRouter := sm.Methods(http.MethodPost).Subrouter()
+	postRouter := sm.PathPrefix("/api").Methods(http.MethodPost).Subrouter()
 	postRouter.HandleFunc("/expense", eh.AddExpense)
 	postRouter.Use(eh.MiddlewareExpenseValidation)
 
