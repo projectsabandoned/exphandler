@@ -27,7 +27,8 @@ jobs:
         language: [ 'go' ]
 
     steps:
-    - uses: actions/checkout@v3
+    - name: Checkout
+      uses: actions/checkout@v3
 
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v2
@@ -44,7 +45,7 @@ jobs:
 #    - name: Configure Docker
 #      run: gcloud auth configure-docker --quiet
 
-    - name: calculate image-tag
+    - name: Calculate tag
       run: |
         branchName="$(git rev-parse --abbrev-ref HEAD)"
         commitId="$(git rev-parse --short HEAD)"
