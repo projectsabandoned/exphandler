@@ -35,10 +35,6 @@ jobs:
         language: [ 'go' ]
 
     steps:
-    - name: test
-      if: ${{ github.event_name != 'schedule' }}
-      run: echo "test"
-
     - name: Checkout
       uses: actions/checkout@v3
 
@@ -131,4 +127,5 @@ jobs:
         sarif_file: ${{ steps.scan.outputs.sarifReport }}
 
     - name: Push
+      if: ${{ github.event_name != 'schedule' }}
       run: docker push ${{ env.crName }}/${{ env.TAG}}
