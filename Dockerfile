@@ -4,7 +4,7 @@ WORKDIR /go/src
 COPY  . .
 RUN go build -o /output/main cmd/main.go
 
-FROM ubuntu:bionic-20171114
+FROM ubuntu:jammy
 
 COPY --from=builder /output/main /main
 
