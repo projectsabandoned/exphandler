@@ -3,14 +3,14 @@ on:
   workflow_dispatch:
   push:
     branches: [ main ]
-    paths-ignore:
-     - ".github/**"
-     - "renovate.json"
+    paths:
+     - "!.github/**"
+     - "!renovate.json"
   pull_request:
     branches: [ main ]
-    paths-ignore:
-     - ".github/**"
-     - "renovate.json"
+    paths:
+     - "!.github/**"
+     - "!renovate.json"
   schedule:
     - cron: '0 0 * * *'
   
