@@ -16,12 +16,26 @@ jobs:
     permissions:
       contents: read
       security-events: write
+      actions: read
     runs-on: ubuntu-latest
     env:
       PROJECT: "gcfr-352018"
+
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [ 'go' ]
+
     steps:
     - uses: actions/checkout@v3
 
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v2
+      with:
+        languages: ${{ matrix.language }}
+
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v2
 #    - name: Authenticate to Google Cloud
 #      uses: google-github-actions/auth@v0
 #      with:
