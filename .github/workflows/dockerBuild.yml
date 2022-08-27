@@ -72,12 +72,12 @@ jobs:
         echo "TAG=$(echo $tag)" >> $GITHUB_ENV
 
     - name: Build
-      run: docker build . -t ${{ env.crName }}/test/${{ env.TAG}}
+      run: docker build . -t ${{ env.crName }}/${{ env.TAG}}
 
     - name: Run Trivy vulnerability scanner
       uses: aquasecurity/trivy-action@d63413b0a4a4482237085319f7f4a1ce99a8f2ac
       with:
-        image-ref: '${{ env.crName }}/test/${{ env.TAG}}'
+        image-ref: '${{ env.crName }}/${{ env.TAG}}'
         format: 'template'
         template: '@/contrib/sarif.tpl'
         output: 'trivy-results.sarif'
@@ -94,7 +94,7 @@ jobs:
       env:
         SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
       with:
-        image: ${{ env.crName }}/test/${{ env.TAG}}
+        image: ${{ env.crName }}/${{ env.TAG}}
         args: --file=Dockerfile
 
     - name: Upload result to GitHub Code Scanning
@@ -106,7 +106,7 @@ jobs:
       id: scan
       uses: sysdiglabs/scan-action@0e483c3a8ed88a6d7394a1baaf0e432db09f240f
       with:
-        image-tag: ${{ env.crName }}/test/${{ env.TAG}}
+        image-tag: ${{ env.crName }}/${{ env.TAG}}
         sysdig-secure-token: ${{ secrets.SYSDIG_SECURE_TOKEN}}
         sysdig-secure-url: https://eu1.app.sysdig.com 
         dockerfile-path: ./Dockerfile
@@ -120,4 +120,4 @@ jobs:
         sarif_file: ${{ steps.scan.outputs.sarifReport }}
 
     - name: Push
-      run: docker push ${{ env.crName }}/test/${{ env.TAG}}
+      run: docker push ${{ env.crName }}/${{ env.TAG}}
